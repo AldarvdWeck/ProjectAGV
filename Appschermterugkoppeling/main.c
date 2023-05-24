@@ -31,7 +31,7 @@ int main(void)
 
     while(1)
     {
-        serialWrite("hoi");
+        serialWrite("huhujkoi");
         _delay_ms(1000);
     }
 
