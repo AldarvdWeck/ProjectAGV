@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1684834331 source:d:\schoolv2\projectagv\code3\fuse.c
+	<avr/io.h>
+
+1684847329 source:d:\schoolv2\projectagv\code3\main.c
+	<math.h>
+	<avr/interrupt.h>
+	<util/delay.h>
+	<avr/io.h>
+	<stdio.h>
+
