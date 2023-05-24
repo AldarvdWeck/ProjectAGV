@@ -4,10 +4,19 @@ Stuur_LCD_String("x"); hiermee kan je teksten neerzetten op de plek van de curso
 LCD_Scherm_Leeg(); hiermee maak je het scherm leeg
 itoa(variabele, array, 10); hiermee kan je variabelen omzetten naar strings -- moet je een array voor maken -- 10 is voor decimaal
 */
+#include <avr/interrupt.h>
 #include <avr/io.h>
 #include <stdio.h>
 #include <util/delay.h>
 #include "LCDenBluetooth.h"
+#define TX_BUFFER_SIZE 128
+
+char serialBuffer[TX_BUFFER_SIZE];
+uint8_t serialReadPos = 0;
+uint8_t serialWritePos = 0;
+
+void appendSerial(char c);
+void serialWrite(char c[]);
 
 int main(void)
 {
@@ -22,20 +31,45 @@ int main(void)
 
     while(1)
     {
-
-        UDR0 = '8';
-
-        for(int i = 0; i < 10; i++)
-        {
-            itoa(i, array, 10);
-            LCD_Naar_Locatie(1, 1);
-            Stuur_LCD_String(array);
-            while((UCSR0A & (1 << TXC0)) == 0){}
-            UDR0 = array;
-            _delay_ms(250);
-            LCD_Scherm_Leeg();
-        }
+        serialWrite("hoi");
+        _delay_ms(1000);
     }
 
     return 0;
+}
+
+void appendSerial(char c)
+{
+    serialBuffer[serialWritePos] = c;
+    serialWritePos++;
+    if(serialWritePos >= TX_BUFFER_SIZE)
+    {
+        serialWritePos = 0;
+    }
+}
+
+void serialWrite(char c[])
+{
+    for(uint8_t i = 0; i< strlen(c); i ++)
+    {
+        appendSerial(c[i]);
+    }
+    if(UCSR0A & (1 << UDRE0))
+    {
+        UDR0 = 0;
+    }
+}
+
+ISR(USART_TX_vect)
+{
+    if(serialReadPos != serialWritePos)
+    {
+        UDR0 = serialBuffer[serialReadPos];
+        serialReadPos++;
+
+        if(serialReadPos >= TX_BUFFER_SIZE)
+        {
+            serialReadPos++;
+        }
+    }
 }
